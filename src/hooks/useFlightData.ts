@@ -40,7 +40,9 @@ export function useFlightData(airportCode: string, date: string): LoadState {
     const load = async () => {
       setState((current) => ({ ...current, loading: true, error: null }));
       try {
-        const manifestResponse = await fetch("/data/manifest.json", {
+        const assetUrl = (path: string) =>
+          `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
+        const manifestResponse = await fetch(assetUrl("data/manifest.json"), {
           signal: controller.signal,
         });
         if (!manifestResponse.ok)
@@ -58,7 +60,7 @@ export function useFlightData(airportCode: string, date: string): LoadState {
           throw new Error(
             `Date “${date}” is not available for ${airportCode}.`,
           );
-        const response = await fetch(dateEntry.file, {
+        const response = await fetch(assetUrl(dateEntry.file), {
           signal: controller.signal,
         });
         if (!response.ok)

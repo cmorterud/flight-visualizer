@@ -86,12 +86,12 @@ await writeFile(
           {
             value: "mock",
             label: "Representative day",
-            file: "/data/ATL/mock.json",
+            file: "data/ATL/mock.json",
           },
           {
             value: "2026-05-15",
             label: "May 15, 2026",
-            file: "/data/ATL/2026-05-15.json",
+            file: "data/ATL/2026-05-15.json",
           },
         ],
       },

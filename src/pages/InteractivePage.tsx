@@ -79,7 +79,7 @@ export function InteractivePage() {
         </a>
         <a
           className="recording-link"
-          href="/recording?airport=ATL&date=mock&speed=60"
+          href={`${import.meta.env.BASE_URL}recording?airport=ATL&date=mock&speed=60`}
         >
           Open recording view <span>↗</span>
         </a>

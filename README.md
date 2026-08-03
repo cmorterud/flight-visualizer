@@ -163,6 +163,10 @@ At 60 simulated minutes per real second, the complete day takes approximately 24
 
 For automated capture, Playwright can be added separately to open the recording route at 1080 × 1920 and capture video. It is intentionally not a core dependency.
 
+## GitHub Pages
+
+The Vite configuration automatically uses the repository name as its base path when it builds inside GitHub Actions. Publish the `dist/` directory with the standard Vite GitHub Pages workflow. The production build also emits `404.html`, allowing direct visits to the `/recording` route on project Pages sites.
+
 ## Testing
 
 Unit tests cover HHMM parsing, midnight crossings, arrival and departure time derivation, scheduled fallbacks, great-circle generation, timestamp interpolation, active-flight detection, completed counts, and source-record filtering. The fixed mock seed makes generated output reproducible.
