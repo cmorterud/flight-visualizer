@@ -4,6 +4,8 @@ import type { DatasetManifest, FlightDayDataset } from "../types/flights";
 type LoadState = {
   manifest: DatasetManifest | null;
   dataset: FlightDayDataset | null;
+  airportCode: string;
+  date: string;
   file: string;
   loading: boolean;
   error: string | null;
@@ -30,6 +32,8 @@ export function useFlightData(airportCode: string, date: string): LoadState {
   const [state, setState] = useState<LoadState>({
     manifest: null,
     dataset: null,
+    airportCode: "",
+    date: "",
     file: "",
     loading: true,
     error: null,
@@ -48,29 +52,41 @@ export function useFlightData(airportCode: string, date: string): LoadState {
         if (!manifestResponse.ok)
           throw new Error("Could not load the available flight dates.");
         const manifest = (await manifestResponse.json()) as DatasetManifest;
+        if (!manifest.airports?.length)
+          throw new Error("No airports are listed in the data manifest.");
+        const requestedAirport = airportCode.trim().toUpperCase();
+        const resolvedAirport =
+          requestedAirport ||
+          manifest.defaultAirport ||
+          manifest.airports[0].iataCode;
         const airport = manifest.airports.find(
-          (item) => item.iataCode === airportCode,
+          (item) => item.iataCode === resolvedAirport,
         );
         if (!airport)
           throw new Error(
-            `Airport “${airportCode}” is not available in this build.`,
+            `Airport “${resolvedAirport}” is not available in this build.`,
           );
-        const dateEntry = airport.dates.find((item) => item.value === date);
+        const resolvedDate = date.trim() || airport.dates[0]?.value;
+        const dateEntry = airport.dates.find(
+          (item) => item.value === resolvedDate,
+        );
         if (!dateEntry)
           throw new Error(
-            `Date “${date}” is not available for ${airportCode}.`,
+            `Date “${resolvedDate}” is not available for ${resolvedAirport}.`,
           );
         const response = await fetch(assetUrl(dateEntry.file), {
           signal: controller.signal,
         });
         if (!response.ok)
           throw new Error(
-            `Could not load ${airportCode} flight activity for ${dateEntry.label}.`,
+            `Could not load ${resolvedAirport} flight activity for ${dateEntry.label}.`,
           );
         const dataset = validateDataset(await response.json());
         setState({
           manifest,
           dataset,
+          airportCode: resolvedAirport,
+          date: resolvedDate,
           file: dateEntry.file,
           loading: false,
           error: null,

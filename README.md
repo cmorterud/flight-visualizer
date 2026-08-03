@@ -1,12 +1,12 @@
-# ATL / 24 — Flight Activity Visualization
+# Flight / 24 — Airport Activity Visualization
 
-ATL / 24 is an editorial flight-activity visualization built for both exploration and vertical video. It animates a representative day of domestic arrivals and departures at Hartsfield–Jackson Atlanta International Airport, with great-circle routes, moving flight heads, fading trails, live statistics, and an accumulating daily network.
+Flight / 24 is an editorial flight-activity visualization built for both exploration and vertical video. It animates a representative day of domestic arrivals and departures at a selected airport, with great-circle routes, moving flight heads, fading trails, live statistics, and an accumulating daily network.
 
-The included deterministic mock dataset contains 240 flights across a full day and is ready to use without downloading external data.
+The included deterministic mock datasets contain 240 flights each for ATL and DTW and are ready to use without downloading external data.
 
 ## What the visualization looks like
 
-The interactive view uses a dark continental-US map with cool cyan arrivals, warm orange departures, a pulsing ATL marker, a synchronized clock, live counts, and direct playback controls. The recording view rearranges the same visualization into a minimal 9:16 editorial composition for a 1080 × 1920 Instagram Reel.
+The interactive view uses a dark continental-US map with cool cyan arrivals, warm orange departures, a pulsing selected-airport marker, a synchronized clock, live counts, and direct playback controls. The recording view rearranges the same visualization into a minimal 9:16 editorial composition for a 1080 × 1920 Instagram Reel.
 
 ## Setup
 
@@ -28,7 +28,7 @@ npm run build          # type-check and build for production
 npm run test           # run deterministic unit tests
 npm run lint           # run ESLint
 npm run format         # format the project with Prettier
-npm run generate:mock  # regenerate the seeded mock dataset and manifest
+npm run generate:mock  # generate or update one airport's seeded mock dataset
 npm run preprocess     # convert BTS and OurAirports CSV data
 ```
 
@@ -48,14 +48,14 @@ The default 60-minute speed compresses the 24-hour day into about 24 seconds.
 
 Supported parameters:
 
-| Parameter   | Values                  | Default | Purpose                                     |
-| ----------- | ----------------------- | ------- | ------------------------------------------- |
-| `airport`   | Manifest airport code   | `ATL`   | Selects the airport dataset                 |
-| `date`      | Manifest date or `mock` | `mock`  | Selects the day                             |
-| `speed`     | `15`, `30`, `60`, `120` | `60`    | Simulated minutes per real second           |
-| `autoplay`  | `true`, `false`         | `true`  | Begins after a one-second composition delay |
-| `loop`      | `true`, `false`         | `true`  | Restarts at the end of the day              |
-| `showDebug` | `true`, `false`         | `false` | Shows render diagnostics                    |
+| Parameter   | Values                  | Default          | Purpose                                     |
+| ----------- | ----------------------- | ---------------- | ------------------------------------------- |
+| `airport`   | Manifest airport code   | Manifest default | Selects the airport dataset                 |
+| `date`      | Manifest date or `mock` | First available  | Selects the day                             |
+| `speed`     | `15`, `30`, `60`, `120` | `60`             | Simulated minutes per real second           |
+| `autoplay`  | `true`, `false`         | `true`           | Begins after a one-second composition delay |
+| `loop`      | `true`, `false`         | `true`           | Restarts at the end of the day              |
+| `showDebug` | `true`, `false`         | `false`          | Shows render diagnostics                    |
 
 The recording route has no hover UI, scrollbars, or development controls. Completed routes remain at low opacity so the full daily network accumulates over time.
 
@@ -67,6 +67,8 @@ The browser never parses large source CSV files. It reads a small manifest plus 
 public/data/manifest.json
 public/data/ATL/mock.json
 public/data/ATL/2026-05-15.json
+public/data/DTW/mock.json
+public/data/DTW/2026-05-15.json
 ```
 
 Each flight stores elapsed minutes from the start of the selected airport’s day and a timestamped, approximately 48-point great-circle path. Flights crossing midnight may have a negative `startMinute` or an `endMinute` above 1440 and are retained when any part overlaps the selected day.
@@ -102,10 +104,11 @@ npm run preprocess -- \
   --flights ./raw/flights.csv \
   --airports ./raw/airports.csv \
   --airport ATL \
-  --date 2026-05-15
+  --date 2026-05-15 \
+  --timezone America/New_York
 ```
 
-The script writes `public/data/ATL/2026-05-15.json`. Add or update the corresponding entry in `public/data/manifest.json` before using it in the selectors. Field aliases are isolated in `src/lib/preprocess.ts`, so a differently named source export can be supported by editing one mapping.
+The script writes `public/data/ATL/2026-05-15.json` and safely adds or updates the corresponding manifest entry. Existing airports and dates are preserved. Field aliases are isolated in `src/lib/preprocess.ts`, so a differently named source export can be supported by editing one mapping.
 
 ### Expected BTS flight fields
 
@@ -142,12 +145,22 @@ For a departure, the path begins at actual (or scheduled) departure time and end
 
 ## Add another airport or date
 
-1. Ensure the selected airport and destinations exist in the airports CSV.
-2. Run the preprocessing command with the new airport code and date.
-3. Add the airport/date/file entry to `public/data/manifest.json`.
-4. Reload the app; selectors are generated entirely from the manifest.
+For real data:
 
-For a mock airport, add coordinates to `scripts/airports.ts` and adapt `scripts/generate-mock.ts` to produce its flight day.
+1. Ensure the selected airport and destinations exist in the airports CSV.
+2. Run the preprocessing command with the new airport code, date, and IANA timezone.
+3. Reload the app; preprocessing updates the manifest and selectors automatically.
+
+For a deterministic mock airport:
+
+1. Add its name, coordinates, and timezone to `scripts/airports.ts`.
+2. Generate its dataset:
+
+```bash
+npm run generate:mock -- --airport DTW --date 2026-05-15 --count 240
+```
+
+The generator creates both `mock.json` and the dated JSON file, then merges the airport into the manifest without removing other entries. Add `--default true` to make it the default airport. The UI, recording link, headings, airport code, coordinates, and dataset selectors are derived from the manifest and processed data.
 
 ## Recording at 1080 × 1920
 

@@ -1,11 +1,16 @@
 import type { AirportSummary } from "../src/types/flights";
 
-export const AIRPORTS: Record<string, AirportSummary> = {
+export type AirportCatalogEntry = AirportSummary & { timezone?: string };
+
+// Add an airport here to make it available to the mock-data generator. The
+// real-data preprocessor reads its airport catalog from OurAirports CSV.
+export const AIRPORTS: Record<string, AirportCatalogEntry> = {
   ATL: {
     iataCode: "ATL",
     name: "Hartsfield–Jackson Atlanta International",
     municipality: "Atlanta",
     coordinate: [-84.4277, 33.6407],
+    timezone: "America/New_York",
   },
   JFK: {
     iataCode: "JFK",
@@ -42,6 +47,7 @@ export const AIRPORTS: Record<string, AirportSummary> = {
     name: "Detroit Metropolitan",
     municipality: "Detroit",
     coordinate: [-83.3534, 42.2162],
+    timezone: "America/Detroit",
   },
   MIA: {
     iataCode: "MIA",

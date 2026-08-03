@@ -11,8 +11,14 @@ import { calculateStats } from "../lib/stats";
 import { formatDateLabel } from "../lib/time";
 
 export function InteractivePage() {
-  const [airport, setAirport] = useState("ATL");
-  const [date, setDate] = useState("mock");
+  const initialParams = useMemo(
+    () => new URLSearchParams(window.location.search),
+    [],
+  );
+  const [airport, setAirport] = useState(
+    () => initialParams.get("airport") || "",
+  );
+  const [date, setDate] = useState(() => initialParams.get("date") || "");
   const [showCompletedRoutes, setShowCompletedRoutes] = useState(true);
   const [showAirportMarkers, setShowAirportMarkers] = useState(false);
   const [showActiveCount, setShowActiveCount] = useState(true);
@@ -28,10 +34,15 @@ export function InteractivePage() {
     autoPlay: !prefersReducedMotion,
     autoPlayDelay: 650,
   });
-  const { manifest, dataset, file, loading, error } = useFlightData(
-    airport,
-    date,
-  );
+  const {
+    manifest,
+    dataset,
+    airportCode,
+    date: resolvedDate,
+    file,
+    loading,
+    error,
+  } = useFlightData(airport, date);
   const fps = useFps();
   const stats = useMemo(
     () => calculateStats(dataset?.flights ?? [], playback.currentMinute),
@@ -73,13 +84,17 @@ export function InteractivePage() {
   return (
     <main className="interactive-page">
       <header className="site-header">
-        <a className="brand" href="/" aria-label="ATL 24 home">
-          <span className="brand-mark">A</span>
-          <span>ATL / 24</span>
+        <a
+          className="brand"
+          href={import.meta.env.BASE_URL}
+          aria-label={`${airportCode} 24 home`}
+        >
+          <span className="brand-mark">{airportCode.slice(0, 1)}</span>
+          <span>{airportCode} / 24</span>
         </a>
         <a
           className="recording-link"
-          href={`${import.meta.env.BASE_URL}recording?airport=ATL&date=mock&speed=60`}
+          href={`${import.meta.env.BASE_URL}recording?airport=${airportCode}&date=${resolvedDate}&speed=60`}
         >
           Open recording view <span>↗</span>
         </a>
@@ -87,7 +102,9 @@ export function InteractivePage() {
 
       <section className="hero-copy">
         <div>
-          <p className="eyebrow">A day in motion · {formatDateLabel(date)}</p>
+          <p className="eyebrow">
+            A day in motion · {formatDateLabel(resolvedDate)}
+          </p>
           <h1>
             Every flight.
             <br />
@@ -95,8 +112,8 @@ export function InteractivePage() {
           </h1>
         </div>
         <p className="intro">
-          Watch a full day of arrivals and departures radiate through the
-          world’s busiest airport.
+          Watch a full day of arrivals and departures radiate through{" "}
+          {dataset.airport.name}.
         </p>
       </section>
 
@@ -145,8 +162,8 @@ export function InteractivePage() {
       />
       <Controls
         manifest={manifest}
-        airport={airport}
-        date={date}
+        airport={airportCode}
+        date={resolvedDate}
         currentMinute={playback.currentMinute}
         isPlaying={playback.isPlaying}
         speed={playback.speed}

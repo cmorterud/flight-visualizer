@@ -42,6 +42,7 @@ export interface FlightDayDataset {
 }
 
 export interface DatasetManifest {
+  defaultAirport?: string;
   airports: Array<{
     iataCode: string;
     name: string;

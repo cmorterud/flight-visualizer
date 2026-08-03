@@ -20,8 +20,8 @@ function booleanParam(
 
 export function RecordingPage() {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
-  const airport = (params.get("airport") || "ATL").toUpperCase();
-  const date = params.get("date") || "mock";
+  const airport = (params.get("airport") || "").toUpperCase();
+  const date = params.get("date") || "";
   const requestedSpeed = Number(params.get("speed") || 60);
   const speed = [15, 30, 60, 120].includes(requestedSpeed)
     ? requestedSpeed
@@ -37,7 +37,10 @@ export function RecordingPage() {
     loop,
     autoPlayDelay: 1000,
   });
-  const { dataset, file, loading, error } = useFlightData(airport, date);
+  const { dataset, airportCode, file, loading, error } = useFlightData(
+    airport,
+    date,
+  );
   const fps = useFps();
   const stats = useMemo(
     () => calculateStats(dataset?.flights ?? [], playback.currentMinute),
@@ -56,7 +59,7 @@ export function RecordingPage() {
     return (
       <StatusView
         title="Preparing the recording"
-        detail="Composing a full day of ATL flight activity…"
+        detail="Composing a full day of flight activity…"
       />
     );
   if (error || !dataset)
@@ -69,24 +72,28 @@ export function RecordingPage() {
     );
 
   const finished = playback.currentMinute >= 1439;
+  const [longitude, latitude] = dataset.airport.coordinate;
+  const latitudeLabel = `${Math.abs(latitude).toFixed(4)}° ${latitude >= 0 ? "N" : "S"}`;
+  const longitudeLabel = `${Math.abs(longitude).toFixed(4)}° ${longitude >= 0 ? "E" : "W"}`;
   return (
     <main className="recording-stage">
       <section
         className="recording-canvas"
-        aria-label="Vertical ATL flight activity recording composition"
+        aria-label={`Vertical ${airportCode} flight activity recording composition`}
       >
         <header className="recording-header">
           <div className="recording-index">
-            <span>ATL</span>
+            <span>{airportCode}</span>
             <small>
-              33.6407° N<br />
-              84.4277° W
+              {latitudeLabel}
+              <br />
+              {longitudeLabel}
             </small>
           </div>
           <p>
             {finished
               ? `${dataset.totalFlights} flights in one day`
-              : "Every flight at ATL"}
+              : `Every flight at ${airportCode}`}
           </p>
           <h1>
             Over

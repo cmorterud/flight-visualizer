@@ -93,6 +93,7 @@ export function buildDataset(
   airports: Record<string, AirportSummary>,
   selectedAirport: string,
   date: string,
+  timezone = "America/New_York",
 ): FlightDayDataset {
   const airport = airports[selectedAirport];
   if (!airport)
@@ -162,7 +163,7 @@ export function buildDataset(
   return {
     airport,
     date,
-    timezone: "America/New_York",
+    timezone,
     generatedAt: new Date().toISOString(),
     totalFlights: flights.length,
     totalArrivals,

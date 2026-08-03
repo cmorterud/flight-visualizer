@@ -1,6 +1,7 @@
 import { readFile, mkdir, writeFile } from "node:fs/promises";
 import { parse } from "csv-parse/sync";
 import { buildDataset, parseAirports } from "../src/lib/preprocess";
+import { updateManifest } from "./manifest";
 
 function argsToRecord(values: string[]): Record<string, string> {
   const result: Record<string, string> = {};
@@ -41,10 +42,17 @@ const dataset = buildDataset(
   parseAirports(airportRows),
   airportCode,
   args.date,
+  args.timezone || "America/New_York",
 );
 const directory = `public/data/${airportCode}`;
 await mkdir(directory, { recursive: true });
 await writeFile(`${directory}/${args.date}.json`, JSON.stringify(dataset));
+await updateManifest(dataset, [
+  {
+    value: args.date,
+    file: `data/${airportCode}/${args.date}.json`,
+  },
+]);
 console.log(
   `Wrote ${dataset.totalFlights} flights to ${directory}/${args.date}.json`,
 );
