@@ -235,6 +235,7 @@ export function FlightMap({
           getPixelOffset: [0, -17],
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
           fontWeight: 700,
+          fontSettings: { sdf: true },
           outlineColor: [7, 11, 19, 255],
           outlineWidth: 4,
           pickable: false,
