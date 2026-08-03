@@ -61,7 +61,7 @@ The recording route has no hover UI, scrollbars, or development controls. Comple
 
 ## Data architecture
 
-The browser never parses large source CSV files. It reads a small manifest plus one preprocessed JSON file for the selected airport and date:
+The browser never parses large source CSV files. It reads a small manifest plus one preprocessed JSON file for the selected airport and date. Production hosting uses only a minimal static-asset worker entry; there is no application backend or runtime data processing.
 
 ```text
 public/data/manifest.json
