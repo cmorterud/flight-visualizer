@@ -17,7 +17,7 @@ export const RECORDING_DEFAULTS: RecordingOptions = {
   date: "mock",
   speed: 60,
   autoplay: false,
-  loop: true,
+  loop: false,
   showHook: false,
   pacing: "linear",
   showSafeAreas: false,

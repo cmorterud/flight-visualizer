@@ -54,7 +54,7 @@ Supported parameters:
 | `date`          | Manifest date or `mock`       | `mock`   | Selects the day                                |
 | `speed`         | `15`, `30`, `60`, `90`, `120` | `60`     | Simulated minutes per real second              |
 | `autoplay`      | `true`, `false`, `1`, `0`     | `false`  | Optionally starts once map and fonts are ready |
-| `loop`          | `true`, `false`, `1`, `0`     | `true`   | Restarts immediately after the 24-hour day     |
+| `loop`          | `true`, `false`, `1`, `0`     | `false`  | Optionally restarts after the 24-hour day       |
 | `showHook`      | `true`, `false`, `1`, `0`     | `false`  | Adds the 0.75-second completed-network hook    |
 | `pacing`        | `linear`, `activity`          | `linear` | Chooses constant or activity-weighted pacing   |
 | `showSafeAreas` | `true`, `false`, `1`, `0`     | `false`  | Shows non-interactive Reel-safe guides         |

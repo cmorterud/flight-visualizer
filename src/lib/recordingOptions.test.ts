@@ -11,14 +11,14 @@ describe("recording query parsing", () => {
   it("parses supported booleans, speed, pacing, airport, and date", () => {
     expect(
       parseRecordingOptions(
-        "?airport=lax&date=2026-07-15&speed=90&autoplay=0&loop=false&showHook=1&pacing=activity&showSafeAreas=true&showDebug=1",
+        "?airport=lax&date=2026-07-15&speed=90&autoplay=0&loop=true&showHook=1&pacing=activity&showSafeAreas=true&showDebug=1",
       ),
     ).toEqual({
       airport: "LAX",
       date: "2026-07-15",
       speed: 90,
       autoplay: false,
-      loop: false,
+      loop: true,
       showHook: true,
       pacing: "activity",
       showSafeAreas: true,
