@@ -7,6 +7,7 @@ import { StatusView } from "../components/StatusView";
 import { useFlightData } from "../hooks/useFlightData";
 import { useFps } from "../hooks/useFps";
 import { usePlayback } from "../hooks/usePlayback";
+import { getDatasetDisclosure } from "../lib/copy";
 import { calculateStats } from "../lib/stats";
 import { formatDateLabel } from "../lib/time";
 
@@ -48,6 +49,7 @@ export function InteractivePage() {
     () => calculateStats(dataset?.flights ?? [], playback.currentMinute),
     [dataset, playback.currentMinute],
   );
+  const disclosure = dataset ? getDatasetDisclosure(dataset.metadata) : "";
 
   if (loading)
     return (
@@ -106,7 +108,7 @@ export function InteractivePage() {
             A day in motion · {formatDateLabel(resolvedDate)}
           </p>
           <h1>
-            Every flight.
+            Flight activity.
             <br />
             <em>One pulse.</em>
           </h1>
@@ -189,6 +191,25 @@ export function InteractivePage() {
           if (key === "debug") setShowDebug((value) => !value);
         }}
       />
+      <section
+        className="dataset-disclosure"
+        aria-labelledby="dataset-disclosure-title"
+      >
+        <span id="dataset-disclosure-title">Dataset disclosure</span>
+        <p>{disclosure}</p>
+        {dataset.metadata.sourceName && (
+          <small>
+            Source:{" "}
+            {dataset.metadata.sourceUrl ? (
+              <a href={dataset.metadata.sourceUrl}>
+                {dataset.metadata.sourceName}
+              </a>
+            ) : (
+              dataset.metadata.sourceName
+            )}
+          </small>
+        )}
+      </section>
       <p className="sr-only" aria-live="polite">
         Loaded {dataset.totalFlights} flights at {dataset.airport.name}:{" "}
         {dataset.totalArrivals} arrivals and {dataset.totalDepartures}{" "}
@@ -196,7 +217,11 @@ export function InteractivePage() {
       </p>
       <footer>
         <span>Calculated great-circle routes · Not live radar tracks</span>
-        <span>Mock flight activity for visualization</span>
+        <span>
+          {dataset.metadata.kind === "historical"
+            ? "Historical reported flight activity"
+            : "Representative flight activity for visualization"}
+        </span>
       </footer>
     </main>
   );

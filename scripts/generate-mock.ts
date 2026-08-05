@@ -92,6 +92,13 @@ for (let index = 0; index < flightCount; index += 1) {
 
 flights.sort((a, b) => a.startMinute - b.startMinute);
 const dataset: FlightDayDataset = {
+  metadata: {
+    kind: "mock",
+    airportCode: selectedCode,
+    coverage: "domestic",
+    routesAreCalculated: true,
+    isCompleteDataset: false,
+  },
   airport: selectedAirport,
   date,
   timezone: selectedAirport.timezone || "America/New_York",

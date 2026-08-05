@@ -2,6 +2,19 @@ export type Coordinate = [longitude: number, latitude: number];
 
 export type FlightDirection = "arrival" | "departure";
 
+export type DatasetKind = "mock" | "representative" | "historical";
+
+export interface DatasetMetadata {
+  kind: DatasetKind;
+  airportCode: string;
+  date?: string;
+  coverage?: "domestic" | "international" | "all-reported";
+  sourceName?: string;
+  sourceUrl?: string;
+  routesAreCalculated: boolean;
+  isCompleteDataset?: boolean;
+}
+
 export interface FlightPathPoint {
   coordinate: Coordinate;
   timestamp: number;
@@ -30,6 +43,7 @@ export interface AirportSummary {
 }
 
 export interface FlightDayDataset {
+  metadata: DatasetMetadata;
   airport: AirportSummary;
   date: string;
   timezone: string;

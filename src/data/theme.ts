@@ -11,8 +11,20 @@ export const THEME = {
 } as const;
 
 export const DECK_COLORS = {
-  arrival: [107, 229, 255, 220] as [number, number, number, number],
-  departure: [255, 157, 100, 220] as [number, number, number, number],
+  arrival: [107, 229, 255, 255] as [number, number, number, number],
+  departure: [255, 157, 100, 255] as [number, number, number, number],
   airport: [247, 233, 185, 255] as [number, number, number, number],
-  completed: [116, 134, 160, 30] as [number, number, number, number],
+  completed: [116, 134, 160, 255] as [number, number, number, number],
 };
+
+export const FLIGHT_VISUAL_THEME = {
+  activeHeadOpacity: 1,
+  activeTrailOpacity: 0.72,
+  completedRouteOpacity: 0.14,
+  activeHeadRadiusPixels: 4,
+  activeTrailWidthPixels: 2,
+  completedRouteWidthPixels: 1.2,
+  basemapOpacity: 0.79,
+  pulseDurationMs: 520,
+  pulseBatchWindowMs: 250,
+} as const;

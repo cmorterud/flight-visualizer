@@ -1,60 +1,74 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DebugOverlay } from "../components/DebugOverlay";
 import { FlightMap } from "../components/FlightMap";
 import { StatusView } from "../components/StatusView";
 import { useFlightData } from "../hooks/useFlightData";
 import { useFps } from "../hooks/useFps";
-import { usePlayback } from "../hooks/usePlayback";
-import { calculateStats } from "../lib/stats";
+import { useRecordingPlayback } from "../hooks/useRecordingPlayback";
+import {
+  getAirborneCopy,
+  getHookCopy,
+  getRecordingCopy,
+  getRecordingFinalSummary,
+} from "../lib/copy";
+import { parseRecordingOptions } from "../lib/recordingOptions";
+import {
+  createFlightCountIndex,
+  getAirborneCountFromIndex,
+  getArrivedCountFromIndex,
+  getDepartedCountFromIndex,
+} from "../lib/stats";
 import { formatClock } from "../lib/time";
 
-function booleanParam(
-  params: URLSearchParams,
-  name: string,
-  fallback: boolean,
-): boolean {
-  const value = params.get(name);
-  if (value === null) return fallback;
-  return value !== "false";
-}
-
 export function RecordingPage() {
-  const params = useMemo(() => new URLSearchParams(window.location.search), []);
-  const airport = (params.get("airport") || "").toUpperCase();
-  const date = params.get("date") || "";
-  const requestedSpeed = Number(params.get("speed") || 60);
-  const speed = [15, 30, 60, 120].includes(requestedSpeed)
-    ? requestedSpeed
-    : 60;
-  const autoplay = booleanParam(params, "autoplay", true);
-  const loop = booleanParam(params, "loop", true);
-  const showDebug = booleanParam(params, "showDebug", false);
+  const options = useMemo(
+    () => parseRecordingOptions(window.location.search),
+    [],
+  );
   const [zoom, setZoom] = useState(2.6);
   const [mapError, setMapError] = useState<string | null>(null);
-  const playback = usePlayback({
-    initialSpeed: speed,
-    autoPlay: autoplay,
-    loop,
-    autoPlayDelay: 1000,
-  });
+  const [mapReady, setMapReady] = useState(false);
+  const [fontsReady, setFontsReady] = useState(!document.fonts);
+  const handleMapReady = useCallback(() => setMapReady(true), []);
   const { dataset, airportCode, file, loading, error } = useFlightData(
-    airport,
-    date,
+    options.airport,
+    options.date,
   );
   const fps = useFps();
-  const stats = useMemo(
-    () => calculateStats(dataset?.flights ?? [], playback.currentMinute),
-    [dataset, playback.currentMinute],
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!document.fonts) return;
+    void document.fonts.ready.then(() => {
+      if (!cancelled) setFontsReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const ready = Boolean(dataset) && mapReady && fontsReady;
+  const playback = useRecordingPlayback({
+    ready,
+    autoplay: options.autoplay,
+    loop: options.loop,
+    showHook: options.showHook,
+    pacing: options.pacing,
+    speed: options.speed,
+  });
+  const countIndex = useMemo(
+    () => createFlightCountIndex(dataset?.flights ?? []),
+    [dataset],
+  );
+  const counts = useMemo(
+    () => ({
+      active: getAirborneCountFromIndex(countIndex, playback.currentMinute),
+      arrived: getArrivedCountFromIndex(countIndex, playback.currentMinute),
+      departed: getDepartedCountFromIndex(countIndex, playback.currentMinute),
+    }),
+    [countIndex, playback.currentMinute],
   );
 
-  if (![15, 30, 60, 120].includes(requestedSpeed))
-    return (
-      <StatusView
-        error
-        title="Invalid recording speed"
-        detail="Use 15, 30, 60, or 120 simulated minutes per second."
-      />
-    );
   if (loading)
     return (
       <StatusView
@@ -71,41 +85,44 @@ export function RecordingPage() {
       />
     );
 
-  const finished = playback.currentMinute >= 1439;
-  const [longitude, latitude] = dataset.airport.coordinate;
-  const latitudeLabel = `${Math.abs(latitude).toFixed(4)}° ${latitude >= 0 ? "N" : "S"}`;
-  const longitudeLabel = `${Math.abs(longitude).toFixed(4)}° ${longitude >= 0 ? "E" : "W"}`;
+  const copy = getRecordingCopy(dataset.metadata);
+  const hookCopy = getHookCopy(dataset.metadata);
+  const finalSummary = getRecordingFinalSummary(
+    dataset.metadata,
+    dataset.totalFlights,
+  );
+  const isHook = playback.phase === "hook";
+  const isEnding =
+    playback.phase === "ending" || playback.phase === "loop-reset";
+  const showFullNetwork = isHook || isEnding;
+  const showLiveActivity = playback.phase === "playing";
+
   return (
     <main className="recording-stage">
       <section
-        className="recording-canvas"
+        className={`recording-canvas phase-${playback.phase}`}
         aria-label={`Vertical ${airportCode} flight activity recording composition`}
+        aria-busy={!ready}
       >
-        <header className="recording-header">
+        <header className="recording-header" aria-hidden={isHook || isEnding}>
           <div className="recording-index">
             <span>{airportCode}</span>
-            <small>
-              {latitudeLabel}
-              <br />
-              {longitudeLabel}
-            </small>
           </div>
-          <p>
-            {finished
-              ? `${dataset.totalFlights} flights in one day`
-              : `Every flight at ${airportCode}`}
-          </p>
+          <p>{copy.eyebrow}</p>
+          {copy.dateLine && (
+            <strong className="recording-date">{copy.dateLine}</strong>
+          )}
           <h1>
-            Over
+            {copy.headline}
             <br />
-            <em>24 hours</em>
+            <em>{copy.headlineEmphasis}</em>
           </h1>
         </header>
 
-        <div className="recording-time">
+        <div className="recording-time" aria-hidden={!showLiveActivity}>
           <strong>{formatClock(playback.currentMinute)}</strong>
           <span>
-            <i /> {stats.active} flights airborne
+            <i /> <b>{getAirborneCopy(counts.active)}</b>
           </span>
         </div>
 
@@ -116,8 +133,11 @@ export function RecordingPage() {
             currentMinute={playback.currentMinute}
             showCompletedRoutes
             showAirportMarkers={false}
+            showFullNetwork={showFullNetwork}
+            showActiveFlights={showLiveActivity}
             onZoomChange={setZoom}
             onMapError={setMapError}
+            onReady={handleMapReady}
           />
           <div className="recording-map-label west">PACIFIC</div>
           <div className="recording-map-label east">ATLANTIC</div>
@@ -129,35 +149,78 @@ export function RecordingPage() {
           {mapError && <div className="map-error">Basemap unavailable</div>}
         </div>
 
-        <footer className="recording-footer">
+        <footer className="recording-footer" aria-hidden={isHook || isEnding}>
           <div>
-            <strong>{dataset.totalArrivals}</strong>
-            <span>Arrivals</span>
+            <strong>{counts.arrived}</strong>
+            <span>Arrived</span>
           </div>
           <div className="footer-rule" />
           <div>
-            <strong>{dataset.totalDepartures}</strong>
-            <span>Departures</span>
+            <strong>{counts.departed}</strong>
+            <span>Departed</span>
           </div>
-          <p>
-            Representative domestic flight activity · Calculated great-circle
-            routes
-          </p>
         </footer>
-        <div className="recording-progress">
-          <span style={{ width: `${playback.progress * 100}%` }} />
+
+        {isHook && (
+          <div className="recording-hook">
+            {hookCopy.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </div>
+        )}
+
+        {isEnding && (
+          <div className="recording-ending">
+            <strong>{finalSummary.totalLine}</strong>
+            <span>{finalSummary.periodLine}</span>
+            <em>{finalSummary.cta}</em>
+          </div>
+        )}
+
+        <div className="recording-progress" aria-hidden="true">
+          <span
+            style={{ width: `${(playback.currentMinute / 1440) * 100}%` }}
+          />
         </div>
-        {showDebug && (
+
+        {!ready && (
+          <div className="recording-ready-cover" role="status">
+            Preparing map and typography…
+          </div>
+        )}
+
+        {options.showSafeAreas && (
+          <div className="recording-safe-areas" aria-hidden="true">
+            <span className="safe-top" />
+            <span className="safe-right" />
+            <span className="safe-bottom" />
+            <span className="safe-left" />
+          </div>
+        )}
+
+        {options.showDebug && (
           <DebugOverlay
             minute={playback.currentMinute}
-            active={stats.active}
+            active={counts.active}
+            arrived={counts.arrived}
+            departed={counts.departed}
             paths={dataset.totalFlights}
             file={file}
             fps={fps}
             zoom={zoom}
-            speed={playback.speed}
+            speed={options.speed}
+            phase={playback.phase}
+            pacing={options.pacing}
+            elapsed={playback.elapsedPlaybackSeconds}
+            expectedDuration={playback.expectedPlaybackSeconds}
           />
         )}
+
+        <p className="sr-only" aria-live="polite">
+          Loaded {dataset.totalFlights} flights at {dataset.airport.name}:{" "}
+          {dataset.totalArrivals} inbound and {dataset.totalDepartures}{" "}
+          outbound.
+        </p>
       </section>
     </main>
   );

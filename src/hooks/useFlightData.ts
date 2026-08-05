@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import type { DatasetManifest, FlightDayDataset } from "../types/flights";
+import type {
+  DatasetManifest,
+  DatasetMetadata,
+  FlightDayDataset,
+} from "../types/flights";
 
 type LoadState = {
   manifest: DatasetManifest | null;
@@ -25,7 +29,15 @@ function validateDataset(value: unknown): FlightDayDataset {
   ) {
     throw new Error("One or more flights has an invalid route path.");
   }
-  return dataset;
+  const fallbackMetadata: DatasetMetadata = {
+    kind: "representative",
+    airportCode: dataset.airport.iataCode,
+    date: dataset.date,
+    coverage: "domestic",
+    routesAreCalculated: true,
+    isCompleteDataset: false,
+  };
+  return { ...dataset, metadata: dataset.metadata ?? fallbackMetadata };
 }
 
 export function useFlightData(airportCode: string, date: string): LoadState {

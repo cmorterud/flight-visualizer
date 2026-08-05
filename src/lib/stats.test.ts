@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { calculateStats, isFlightActive } from "./stats";
+import {
+  calculateStats,
+  createFlightCountIndex,
+  getAirborneCount,
+  getAirborneCountFromIndex,
+  getArrivedCount,
+  getArrivedCountFromIndex,
+  getDepartedCount,
+  getDepartedCountFromIndex,
+  isFlightActive,
+} from "./stats";
 import type { ProcessedFlight } from "../types/flights";
 
 const flight = (
@@ -41,5 +51,30 @@ describe("flight state statistics", () => {
       completedArrivals: 1,
       completedDepartures: 1,
     });
+  });
+
+  it("counts arrivals, departures, and airborne flights at a minute", () => {
+    const flights = [
+      flight("arrival", 20, 80),
+      flight("departure", 50, 90),
+      flight("arrival", 80, 140),
+    ];
+    expect(getArrivedCount(flights, 100)).toBe(1);
+    expect(getDepartedCount(flights, 100)).toBe(1);
+    expect(getAirborneCount(flights, 100)).toBe(1);
+  });
+
+  it("keeps crossing-midnight activity and completes selected-day totals", () => {
+    const flights = [
+      flight("departure", 1410, 1530),
+      flight("arrival", -30, 15),
+      flight("arrival", 1380, 1500),
+    ];
+    const index = createFlightCountIndex(flights);
+    expect(getAirborneCountFromIndex(index, 0)).toBe(1);
+    expect(getArrivedCountFromIndex(index, 15)).toBe(1);
+    expect(getDepartedCountFromIndex(index, 1410)).toBe(1);
+    expect(getArrivedCountFromIndex(index, 1440)).toBe(2);
+    expect(getDepartedCountFromIndex(index, 1440)).toBe(1);
   });
 });

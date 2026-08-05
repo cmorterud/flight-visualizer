@@ -44,7 +44,7 @@ export function formatClock(minute: number): string {
   const mins = wrapped % 60;
   const period = hours >= 12 ? "PM" : "AM";
   const displayHour = hours % 12 || 12;
-  return `${String(displayHour).padStart(2, "0")}:${String(mins).padStart(2, "0")} ${period}`;
+  return `${displayHour}:${String(mins).padStart(2, "0")} ${period}`;
 }
 
 export function formatDateLabel(value: string): string {

@@ -161,6 +161,16 @@ export function buildDataset(
     (flight) => flight.direction === "arrival",
   ).length;
   return {
+    metadata: {
+      kind: "historical",
+      airportCode: selectedAirport,
+      date,
+      coverage: "domestic",
+      sourceName: "US Bureau of Transportation Statistics",
+      sourceUrl: "https://www.transtats.bts.gov/",
+      routesAreCalculated: true,
+      isCompleteDataset: false,
+    },
     airport,
     date,
     timezone,

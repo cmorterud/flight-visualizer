@@ -44,20 +44,23 @@ The default 60-minute speed compresses the 24-hour day into about 24 seconds.
 
 ### Recording route
 
-`/recording?airport=ATL&date=2026-05-15&speed=60`
+`/recording?airport=DTW&date=mock&speed=60`
 
 Supported parameters:
 
-| Parameter   | Values                  | Default          | Purpose                                     |
-| ----------- | ----------------------- | ---------------- | ------------------------------------------- |
-| `airport`   | Manifest airport code   | Manifest default | Selects the airport dataset                 |
-| `date`      | Manifest date or `mock` | First available  | Selects the day                             |
-| `speed`     | `15`, `30`, `60`, `120` | `60`             | Simulated minutes per real second           |
-| `autoplay`  | `true`, `false`         | `true`           | Begins after a one-second composition delay |
-| `loop`      | `true`, `false`         | `true`           | Restarts at the end of the day              |
-| `showDebug` | `true`, `false`         | `false`          | Shows render diagnostics                    |
+| Parameter       | Values                        | Default  | Purpose                                      |
+| --------------- | ----------------------------- | -------- | -------------------------------------------- |
+| `airport`       | Three-letter manifest code    | `DTW`    | Selects the airport dataset                  |
+| `date`          | Manifest date or `mock`       | `mock`   | Selects the day                              |
+| `speed`         | `15`, `30`, `60`, `90`, `120` | `60`     | Simulated minutes per real second            |
+| `autoplay`      | `true`, `false`, `1`, `0`     | `true`   | Starts once the map and fonts are ready      |
+| `loop`          | `true`, `false`, `1`, `0`     | `true`   | Repeats after the final 1.75-second hold     |
+| `showHook`      | `true`, `false`, `1`, `0`     | `false`  | Adds the 0.75-second completed-network hook  |
+| `pacing`        | `linear`, `activity`          | `linear` | Chooses constant or activity-weighted pacing |
+| `showSafeAreas` | `true`, `false`, `1`, `0`     | `false`  | Shows non-interactive Reel-safe guides       |
+| `showDebug`     | `true`, `false`, `1`, `0`     | `false`  | Shows render and recording diagnostics       |
 
-The recording route has no hover UI, scrollbars, or development controls. Completed routes remain at low opacity so the full daily network accumulates over time.
+The recording route has no hover UI, scrollbars, or development controls. Completed routes remain at low opacity so the full daily network accumulates over time. Its fixed design canvas scales uniformly for previews and reserves Reel-safe equivalents of 90 px left, 150 px right, 120 px top, and 280 px bottom at 1080 × 1920.
 
 ## Data architecture
 
@@ -72,6 +75,25 @@ public/data/DTW/2026-05-15.json
 ```
 
 Each flight stores elapsed minutes from the start of the selected airport’s day and a timestamped, approximately 48-point great-circle path. Flights crossing midnight may have a negative `startMinute` or an `endMinute` above 1440 and are retained when any part overlaps the selected day.
+
+Each dataset also includes provenance metadata:
+
+```ts
+type DatasetKind = "mock" | "representative" | "historical";
+
+interface DatasetMetadata {
+  kind: DatasetKind;
+  airportCode: string;
+  date?: string;
+  coverage?: "domestic" | "international" | "all-reported";
+  sourceName?: string;
+  sourceUrl?: string;
+  routesAreCalculated: boolean;
+  isCompleteDataset?: boolean;
+}
+```
+
+Recording titles, final summaries, and the selectable social-caption disclosure in the interactive view are generated from this metadata. “Every domestic flight” is only permitted for historical domestic data whose `isCompleteDataset` value is explicitly `true`; mock and representative datasets never make that claim.
 
 The project layout is:
 
@@ -160,13 +182,13 @@ For a deterministic mock airport:
 npm run generate:mock -- --airport DTW --date 2026-05-15 --count 240
 ```
 
-The generator creates both `mock.json` and the dated JSON file, then merges the airport into the manifest without removing other entries. Add `--default true` to make it the default airport. The UI, recording link, headings, airport code, coordinates, and dataset selectors are derived from the manifest and processed data.
+The generator creates both `mock.json` and the dated JSON file, then merges the airport into the manifest without removing other entries. Add `--default true` to make it the default airport. The UI, recording link, headings, airport code, and dataset selectors are derived from the manifest and processed data.
 
 ## Recording at 1080 × 1920
 
 ### Browser recording
 
-1. Open `/recording?airport=ATL&date=mock&speed=60&autoplay=false`.
+1. Open `/recording?airport=DTW&date=mock&speed=60&autoplay=false&showHook=true&pacing=linear`.
 2. Set the browser viewport to exactly 1080 × 1920.
 3. Hide browser chrome if possible.
 4. Change `autoplay=false` to `autoplay=true` or reload a URL without that parameter.
@@ -182,7 +204,7 @@ The Vite configuration automatically uses the repository name as its base path w
 
 ## Testing
 
-Unit tests cover HHMM parsing, midnight crossings, arrival and departure time derivation, scheduled fallbacks, great-circle generation, timestamp interpolation, active-flight detection, completed counts, and source-record filtering. The fixed mock seed makes generated output reproducible.
+Unit tests cover provenance-gated copy, disclosure text, query validation, clock formatting, midnight crossings, arrival/departure/airborne counts, pacing, recording phases and loop resets, time derivation, great-circle generation, interpolation, and source-record filtering. The fixed mock seed makes generated output reproducible.
 
 ## Performance notes
 

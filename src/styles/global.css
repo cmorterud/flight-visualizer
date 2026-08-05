@@ -471,6 +471,35 @@ input[type="range"] {
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
+.dataset-disclosure {
+  margin-top: 22px;
+  padding: 20px 24px;
+  border: 1px solid var(--line);
+  color: #a4adba;
+}
+.dataset-disclosure > span {
+  color: var(--departure);
+  font:
+    500 9px/1 "DM Mono",
+    monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.dataset-disclosure p {
+  max-width: 780px;
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  user-select: text;
+}
+.dataset-disclosure small {
+  display: block;
+  margin-top: 8px;
+  color: #687487;
+}
+.dataset-disclosure a {
+  color: #8fa9bd;
+}
 
 .debug-overlay {
   position: absolute;
@@ -549,6 +578,11 @@ input[type="range"] {
   overflow: hidden;
   background: #070b13;
   container-type: inline-size;
+  /* 90/150/120/280px on the fixed 1080×1920 design canvas. */
+  --recording-safe-left: 8.333cqw;
+  --recording-safe-right: 13.889cqw;
+  --recording-safe-top: 6.25%;
+  --recording-safe-bottom: 14.583%;
 }
 .recording-canvas::before {
   content: "";
@@ -562,8 +596,9 @@ input[type="range"] {
   position: absolute;
   z-index: 5;
   top: 7.2%;
-  left: 8%;
-  right: 9%;
+  left: var(--recording-safe-left);
+  right: var(--recording-safe-right);
+  transition: opacity 0.12s ease;
 }
 .recording-index {
   position: absolute;
@@ -571,34 +606,38 @@ input[type="range"] {
   top: 1.2%;
   display: flex;
   align-items: center;
-  gap: 2.2cqw;
   color: #536277;
 }
 .recording-index > span {
   display: grid;
   place-items: center;
-  width: 9cqw;
-  height: 9cqw;
+  width: 8.1cqw;
+  height: 8.1cqw;
   border: 1px solid #536277;
   border-radius: 50%;
   color: var(--cream);
   font:
-    500 3cqw/1 "DM Mono",
-    monospace;
-}
-.recording-index small {
-  font:
-    400 1.45cqw/1.5 "DM Mono",
+    500 2.7cqw/1 "DM Mono",
     monospace;
 }
 .recording-header > p {
+  max-width: 62cqw;
   margin: 0 0 2.6cqw;
   color: var(--departure);
   font:
-    500 2cqw/1 "DM Mono",
+    500 2.15cqw/1.15 "DM Mono",
     monospace;
-  letter-spacing: 0.17em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+.recording-date {
+  display: block;
+  margin: -0.6cqw 0 1.6cqw;
+  color: #b7c0cc;
+  font:
+    500 2.4cqw/1 "DM Mono",
+    monospace;
+  letter-spacing: 0.1em;
 }
 .recording-header h1 {
   margin: 0;
@@ -618,12 +657,15 @@ input[type="range"] {
   position: absolute;
   z-index: 5;
   top: 24.5%;
-  left: 8%;
+  left: var(--recording-safe-left);
+  right: var(--recording-safe-right);
   display: flex;
   align-items: baseline;
-  gap: 3cqw;
+  gap: 2.6cqw;
+  transition: opacity 0.12s ease;
 }
 .recording-time strong {
+  min-width: 28cqw;
   color: var(--ink);
   font:
     500 6.3cqw/1 "DM Mono",
@@ -632,11 +674,20 @@ input[type="range"] {
   letter-spacing: -0.04em;
 }
 .recording-time span {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.15cqw;
+  min-width: 32cqw;
   color: #a1acba;
   font:
-    500 1.8cqw/1 "DM Mono",
+    500 2.15cqw/1 "DM Mono",
     monospace;
   text-transform: uppercase;
+}
+.recording-time b {
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .recording-time i {
   display: inline-block;
@@ -690,43 +741,47 @@ input[type="range"] {
 }
 .recording-key {
   z-index: 5;
-  left: 16%;
+  left: calc(9% + var(--recording-safe-left));
   bottom: 4%;
-  font-size: 1.5cqw;
-  gap: 1.3cqw;
+  font-size: 1.8cqw;
+  gap: 1.45cqw;
 }
 .recording-key .arrival-dot,
 .recording-key .departure-dot {
-  width: 1.2cqw;
-  height: 1.2cqw;
+  width: 1.45cqw;
+  height: 1.45cqw;
 }
 .recording-footer {
   position: absolute;
   z-index: 5;
   top: 78.5%;
-  left: 8%;
-  right: 10%;
+  left: var(--recording-safe-left);
+  right: var(--recording-safe-right);
   display: grid;
-  grid-template-columns: auto 1px auto;
+  grid-template-columns: 17cqw 1px 17cqw;
   align-items: center;
   gap: 5cqw;
+  transition: opacity 0.12s ease;
 }
 .recording-footer > div {
   display: flex;
   flex-direction: column;
 }
 .recording-footer strong {
+  display: block;
+  min-width: 5ch;
   color: var(--ink);
   font:
     500 7cqw/1 "DM Mono",
     monospace;
   font-variant-numeric: tabular-nums;
+  animation: counter-change 0.12s ease-out;
 }
 .recording-footer span {
   margin-top: 1.5cqw;
   color: var(--muted);
   font:
-    500 1.65cqw/1 "DM Mono",
+    500 1.8cqw/1 "DM Mono",
     monospace;
   text-transform: uppercase;
   letter-spacing: 0.13em;
@@ -736,22 +791,17 @@ input[type="range"] {
   height: 8cqw;
   background: #2b3748;
 }
-.recording-footer p {
-  grid-column: 1 / -1;
-  margin: 3cqw 0 0;
-  color: #4d5a6c;
-  font:
-    400 1.3cqw/1.5 "DM Mono",
-    monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+@keyframes counter-change {
+  from {
+    opacity: 0.72;
+  }
 }
 .recording-progress {
   position: absolute;
   z-index: 6;
-  left: 8%;
-  right: 10%;
-  top: 89%;
+  left: var(--recording-safe-left);
+  right: var(--recording-safe-right);
+  top: 88%;
   height: 1px;
   background: #243042;
 }
@@ -762,10 +812,135 @@ input[type="range"] {
   box-shadow: 0 0 1cqw rgba(107, 229, 255, 0.4);
 }
 .recording-canvas > .debug-overlay {
-  top: 30%;
-  left: 5%;
+  top: 31%;
+  left: var(--recording-safe-left);
   font-size: 1.4cqw;
-  width: 30cqw;
+  width: 34cqw;
+}
+.recording-hook,
+.recording-ending {
+  position: absolute;
+  z-index: 6;
+  left: var(--recording-safe-left);
+  right: var(--recording-safe-right);
+  display: flex;
+  flex-direction: column;
+  text-transform: uppercase;
+}
+.recording-hook {
+  top: 12%;
+  color: var(--ink);
+  font:
+    600 5.2cqw/1.05 Inter,
+    sans-serif;
+  letter-spacing: -0.035em;
+  animation: recording-copy-in 0.18s ease-out both;
+}
+.recording-hook span:nth-child(2) {
+  color: var(--cream);
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+}
+.recording-ending {
+  top: 72.5%;
+  align-items: flex-start;
+  animation: recording-copy-in 0.18s ease-out both;
+}
+.recording-ending strong {
+  color: var(--ink);
+  font:
+    600 5.6cqw/1 Inter,
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.045em;
+}
+.recording-ending span {
+  margin-top: 1.1cqw;
+  color: var(--cream);
+  font:
+    400 italic 3.3cqw/1 Georgia,
+    serif;
+}
+.recording-ending em {
+  margin-top: 3cqw;
+  color: var(--departure);
+  font:
+    500 2.15cqw/1 "DM Mono",
+    monospace;
+  font-style: normal;
+  letter-spacing: 0.12em;
+}
+.phase-hook .recording-header,
+.phase-hook .recording-time,
+.phase-hook .recording-footer,
+.phase-ending .recording-header,
+.phase-ending .recording-time,
+.phase-ending .recording-footer,
+.phase-loop-reset .recording-header,
+.phase-loop-reset .recording-time,
+.phase-loop-reset .recording-footer {
+  opacity: 0;
+}
+.phase-transition-to-playback .recording-header,
+.phase-transition-to-playback .recording-time,
+.phase-transition-to-playback .recording-footer {
+  opacity: 0;
+}
+@keyframes recording-copy-in {
+  from {
+    opacity: 0;
+    transform: translateY(1cqw);
+  }
+}
+.recording-ready-cover {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  color: var(--muted);
+  background: var(--bg);
+  font:
+    500 1.8cqw/1 "DM Mono",
+    monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.recording-safe-areas {
+  position: absolute;
+  z-index: 30;
+  inset: 0;
+  pointer-events: none;
+}
+.recording-safe-areas span {
+  position: absolute;
+  display: block;
+  background: rgba(255, 99, 132, 0.42);
+}
+.recording-safe-areas .safe-top {
+  top: var(--recording-safe-top);
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.recording-safe-areas .safe-bottom {
+  bottom: var(--recording-safe-bottom);
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+.recording-safe-areas .safe-left {
+  top: 0;
+  bottom: 0;
+  left: var(--recording-safe-left);
+  width: 1px;
+}
+.recording-safe-areas .safe-right {
+  top: 0;
+  right: var(--recording-safe-right);
+  bottom: 0;
+  width: 1px;
 }
 
 @media (max-width: 760px) {
