@@ -725,22 +725,6 @@ input[type="range"] {
 .recording-map .maplibregl-ctrl-attrib {
   display: none;
 }
-.recording-map-label {
-  position: absolute;
-  z-index: 4;
-  top: 47%;
-  color: #3f4d60;
-  font:
-    500 1.4cqw/1 "DM Mono",
-    monospace;
-  letter-spacing: 0.15em;
-}
-.recording-map-label.west {
-  left: 12%;
-}
-.recording-map-label.east {
-  right: 10%;
-}
 .recording-key {
   z-index: 5;
   left: calc(9% + var(--recording-safe-left));
@@ -1010,6 +994,24 @@ input[type="range"] {
 }
 
 @media (max-width: 760px) {
+  .recording-stage {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    overflow: visible;
+  }
+  .recording-canvas {
+    flex: 0 0 auto;
+    width: 100vw;
+  }
+  .recording-side-panel {
+    position: static;
+    width: calc(100% - 32px);
+    margin: 24px auto max(40px, env(safe-area-inset-bottom));
+    transform: none;
+  }
   .interactive-page {
     padding: 0 16px 20px;
   }

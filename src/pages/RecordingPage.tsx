@@ -180,8 +180,6 @@ export function RecordingPage() {
             onMapError={setMapError}
             onReady={handleMapReady}
           />
-          <div className="recording-map-label west">PACIFIC</div>
-          <div className="recording-map-label east">ATLANTIC</div>
           <div className="recording-key">
             <span className="arrival-dot" />
             Inbound <span className="departure-dot" />
