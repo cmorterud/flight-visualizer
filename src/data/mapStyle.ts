@@ -21,7 +21,8 @@ export function createDarkMapStyle(): StyleSpecification {
         source: "carto",
         paint: {
           "raster-opacity": FLIGHT_VISUAL_THEME.basemapOpacity,
-          "raster-brightness-max": 1.08,
+          "raster-brightness-min": 0.06,
+          "raster-brightness-max": 1,
           "raster-contrast": 0.04,
         },
       },
