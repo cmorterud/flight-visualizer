@@ -1,3 +1,5 @@
+import { RECORDING_TOTAL_MINUTES } from "../lib/recordingProgress";
+
 export const THEME = {
   background: "#070b13",
   panel: "#0b111d",
@@ -21,10 +23,33 @@ export const FLIGHT_VISUAL_THEME = {
   activeHeadOpacity: 1,
   activeTrailOpacity: 0.72,
   completedRouteOpacity: 0.14,
-  activeHeadRadiusPixels: 4,
+  activeHeadRadiusPixels: 3.3,
+  activeHeadRadiusPixelsDefault: 2.1,
+  activeHeadRadiusMaxPixels: 4.2,
+  activeHeadRadiusMetersCompact: 8500,
+  activeHeadRadiusMetersDefault: 6200,
+  selectedAirportRadiusPixels: 4.4,
+  selectedAirportRadiusMaxPixels: 5.6,
+  selectedAirportRadiusMeters: 12500,
+  selectedAirportHaloRadiusPixels: 6.2,
+  selectedAirportHaloRadiusMaxPixels: 7.4,
+  selectedAirportOutlineWidthPixels: 1,
   activeTrailWidthPixels: 2,
   completedRouteWidthPixels: 1.2,
   basemapOpacity: 0.79,
   pulseDurationMs: 520,
   pulseBatchWindowMs: 250,
+} as const;
+
+export const AIRPORT_LABEL_THEME = {
+  sizePixelsCompact: 13,
+  sizePixelsDefault: 11.5,
+  offsetPixels: [0, -22] as [number, number],
+  outlineWidthPixels: 4,
+} as const;
+
+export const RECORDING_TIMELINE_THEME = {
+  totalMinutes: RECORDING_TOTAL_MINUTES,
+  startLabel: "12 AM",
+  endLabel: "12 AM",
 } as const;

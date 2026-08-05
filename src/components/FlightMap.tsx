@@ -7,7 +7,11 @@ import { PathLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
 import { interpolatePosition } from "../lib/geo";
 import { isFlightActive } from "../lib/stats";
 import { createDarkMapStyle } from "../data/mapStyle";
-import { DECK_COLORS, FLIGHT_VISUAL_THEME } from "../data/theme";
+import {
+  AIRPORT_LABEL_THEME,
+  DECK_COLORS,
+  FLIGHT_VISUAL_THEME,
+} from "../data/theme";
 import type {
   Coordinate,
   FlightDayDataset,
@@ -245,11 +249,13 @@ export function FlightMap({
               item.flight.direction === "arrival"
                 ? DECK_COLORS.arrival
                 : DECK_COLORS.departure,
-            getRadius: compact ? 10500 : 7600,
+            getRadius: compact
+              ? FLIGHT_VISUAL_THEME.activeHeadRadiusMetersCompact
+              : FLIGHT_VISUAL_THEME.activeHeadRadiusMetersDefault,
             radiusMinPixels: compact
               ? FLIGHT_VISUAL_THEME.activeHeadRadiusPixels
-              : 2.5,
-            radiusMaxPixels: 5,
+              : FLIGHT_VISUAL_THEME.activeHeadRadiusPixelsDefault,
+            radiusMaxPixels: FLIGHT_VISUAL_THEME.activeHeadRadiusMaxPixels,
             stroked: false,
             opacity: FLIGHT_VISUAL_THEME.activeHeadOpacity,
             pickable: false,
@@ -283,13 +289,30 @@ export function FlightMap({
             pickable: false,
           }),
         new ScatterplotLayer({
+          id: "airport-marker-halo",
+          data: [dataset.airport],
+          getPosition: (airport) => airport.coordinate,
+          getRadius: FLIGHT_VISUAL_THEME.selectedAirportRadiusMeters,
+          radiusMinPixels:
+            FLIGHT_VISUAL_THEME.selectedAirportHaloRadiusPixels,
+          radiusMaxPixels:
+            FLIGHT_VISUAL_THEME.selectedAirportHaloRadiusMaxPixels,
+          getFillColor: [247, 233, 185, 34],
+          pickable: false,
+        }),
+        new ScatterplotLayer({
           id: "airport-marker",
           data: [dataset.airport],
           getPosition: (airport) => airport.coordinate,
-          getRadius: 12500,
-          radiusMinPixels: 4,
-          radiusMaxPixels: 7,
+          getRadius: FLIGHT_VISUAL_THEME.selectedAirportRadiusMeters,
+          radiusMinPixels: FLIGHT_VISUAL_THEME.selectedAirportRadiusPixels,
+          radiusMaxPixels:
+            FLIGHT_VISUAL_THEME.selectedAirportRadiusMaxPixels,
           getFillColor: DECK_COLORS.airport,
+          stroked: true,
+          getLineColor: [7, 11, 19, 230],
+          lineWidthMinPixels:
+            FLIGHT_VISUAL_THEME.selectedAirportOutlineWidthPixels,
           pickable: false,
         }),
         new TextLayer({
@@ -298,13 +321,15 @@ export function FlightMap({
           getPosition: (airport) => airport.coordinate,
           getText: (airport) => airport.iataCode,
           getColor: [247, 233, 185, 255],
-          getSize: compact ? 15 : 13,
-          getPixelOffset: [0, -17],
+          getSize: compact
+            ? AIRPORT_LABEL_THEME.sizePixelsCompact
+            : AIRPORT_LABEL_THEME.sizePixelsDefault,
+          getPixelOffset: AIRPORT_LABEL_THEME.offsetPixels,
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
           fontWeight: 700,
           fontSettings: { sdf: true },
           outlineColor: [7, 11, 19, 255],
-          outlineWidth: 4,
+          outlineWidth: AIRPORT_LABEL_THEME.outlineWidthPixels,
           pickable: false,
         }),
       ].filter(Boolean),

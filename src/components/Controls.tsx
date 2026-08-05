@@ -1,4 +1,5 @@
 import type { DatasetManifest } from "../types/flights";
+import { InteractiveTimeline } from "./Timelines";
 
 type Props = {
   manifest: DatasetManifest;
@@ -88,17 +89,10 @@ export function Controls(props: Props) {
         >
           Restart
         </button>
-        <label className="timeline-label">
-          <span className="sr-only">Timeline</span>
-          <input
-            type="range"
-            min="0"
-            max="1440"
-            step="1"
-            value={Math.min(1440, props.currentMinute)}
-            onChange={(event) => props.onSeek(Number(event.target.value))}
-          />
-        </label>
+        <InteractiveTimeline
+          currentMinute={props.currentMinute}
+          onSeek={props.onSeek}
+        />
       </div>
       <div className="toggles">
         <Toggle

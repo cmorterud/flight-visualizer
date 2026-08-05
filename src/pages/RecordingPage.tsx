@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DebugOverlay } from "../components/DebugOverlay";
 import { FlightMap } from "../components/FlightMap";
 import { StatusView } from "../components/StatusView";
+import { RecordingTimeline } from "../components/Timelines";
 import { useFlightData } from "../hooks/useFlightData";
 import { useFps } from "../hooks/useFps";
 import { useRecordingPlayback } from "../hooks/useRecordingPlayback";
@@ -209,11 +210,7 @@ export function RecordingPage() {
           </div>
         )}
 
-        <div className="recording-progress" aria-hidden="true">
-          <span
-            style={{ width: `${(playback.currentMinute / 1440) * 100}%` }}
-          />
-        </div>
+        <RecordingTimeline currentMinute={playback.currentMinute} />
 
         {!ready && (
           <div className="recording-ready-cover" role="status">
