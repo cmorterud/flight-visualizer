@@ -23,7 +23,7 @@
         },
         {
             "iataCode": "DTW",
-            "name": "Detroit Metropolitan",
+            "name": "Detroit Metropolitan Wayne County Airport",
             "dates": [
                 {
                     "value": "mock",
@@ -34,6 +34,11 @@
                     "value": "2026-05-15",
                     "file": "data/DTW/2026-05-15.json",
                     "label": "May 15, 2026"
+                },
+                {
+                    "value": "2025-12-25",
+                    "file": "data/DTW/2025-12-25.json",
+                    "label": "December 25, 2025"
                 }
             ]
         }
