@@ -54,13 +54,13 @@ Supported parameters:
 | `date`          | Manifest date or `mock`       | `mock`   | Selects the day                              |
 | `speed`         | `15`, `30`, `60`, `90`, `120` | `60`     | Simulated minutes per real second            |
 | `autoplay`      | `true`, `false`, `1`, `0`     | `true`   | Starts once the map and fonts are ready      |
-| `loop`          | `true`, `false`, `1`, `0`     | `true`   | Repeats after the final 1.75-second hold     |
+| `loop`          | `true`, `false`, `1`, `0`     | `true`   | Restarts immediately after the 24-hour day   |
 | `showHook`      | `true`, `false`, `1`, `0`     | `false`  | Adds the 0.75-second completed-network hook  |
 | `pacing`        | `linear`, `activity`          | `linear` | Chooses constant or activity-weighted pacing |
 | `showSafeAreas` | `true`, `false`, `1`, `0`     | `false`  | Shows non-interactive Reel-safe guides       |
 | `showDebug`     | `true`, `false`, `1`, `0`     | `false`  | Shows render and recording diagnostics       |
 
-The recording route has no hover UI, scrollbars, or development controls. Completed routes remain at low opacity so the full daily network accumulates over time. Its fixed design canvas scales uniformly for previews and reserves Reel-safe equivalents of 90 px left, 150 px right, 120 px top, and 280 px bottom at 1080 × 1920.
+The recording route has explicit Start, Pause, and Reset controls but no hover-dependent UI or scrollbars. Completed routes remain at low opacity so the full daily network accumulates over time. Its fixed design canvas scales uniformly for previews and reserves Reel-safe equivalents of 90 px left, 150 px right, 120 px top, and 280 px bottom at 1080 × 1920.
 
 ## Data architecture
 

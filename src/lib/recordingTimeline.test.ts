@@ -21,32 +21,14 @@ describe("recording phase timeline", () => {
     expect(getRecordingFrame(0.88, options).currentMinute).toBeGreaterThan(0);
   });
 
-  it("holds the final state for the configured ending duration", () => {
-    const endingStart = 0.87 + 24;
-    expect(getRecordingFrame(endingStart + 0.1, options).phase).toBe("ending");
-    expect(
-      getRecordingFrame(
-        endingStart + RECORDING_TIMING.endingSeconds - 0.01,
-        options,
-      ).phase,
-    ).toBe("ending");
+  it("loops directly into the next cycle without a final screen", () => {
+    const nextCycle =
+      RECORDING_TIMING.hookSeconds + RECORDING_TIMING.transitionSeconds + 24;
+    expect(getRecordingFrame(nextCycle + 0.01, options).phase).toBe("hook");
   });
 
-  it("uses a clean loop-reset phase before beginning the next cycle", () => {
-    const resetStart = 0.87 + 24 + RECORDING_TIMING.endingSeconds;
-    expect(getRecordingFrame(resetStart + 0.01, options).phase).toBe(
-      "loop-reset",
-    );
-    expect(
-      getRecordingFrame(
-        resetStart + RECORDING_TIMING.loopResetSeconds + 0.01,
-        options,
-      ).phase,
-    ).toBe("hook");
-  });
-
-  it("stays on the final frame when looping is disabled", () => {
+  it("stops in a completed state when looping is disabled", () => {
     const frame = getRecordingFrame(1000, { ...options, loop: false });
-    expect(frame).toMatchObject({ phase: "ending", currentMinute: 1440 });
+    expect(frame).toMatchObject({ phase: "complete", currentMinute: 1440 });
   });
 });

@@ -74,33 +74,6 @@ export function getHookCopy(metadata: DatasetMetadata): string[] {
   return ["WHAT 24 HOURS OF", `FLIGHTS AT ${airport(metadata)}`, "LOOKS LIKE"];
 }
 
-export function getRecordingFinalSummary(
-  metadata: DatasetMetadata,
-  totalFlights: number,
-): { totalLine: string; periodLine: string; cta: string } {
-  const formattedTotal = totalFlights.toLocaleString("en-US");
-  if (metadata.kind === "historical") {
-    const coverage =
-      metadata.coverage === "domestic"
-        ? " DOMESTIC"
-        : metadata.coverage === "international"
-          ? " INTERNATIONAL"
-          : "";
-    return {
-      totalLine: `${formattedTotal}${coverage} FLIGHTS`,
-      periodLine: dateLabel(metadata.date)
-        ? `ON ${dateLabel(metadata.date)!.toUpperCase()}`
-        : "OVER 24 HOURS",
-      cta: "WHICH AIRPORT NEXT?",
-    };
-  }
-  return {
-    totalLine: `${formattedTotal} FLIGHTS`,
-    periodLine: "OVER 24 HOURS",
-    cta: "WHICH AIRPORT NEXT?",
-  };
-}
-
 export function getDatasetDisclosure(metadata: DatasetMetadata): string {
   const code = airport(metadata);
   const routeDisclosure = metadata.routesAreCalculated

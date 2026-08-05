@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   getRecordingFrame,
-  RECORDING_TIMING,
   type RecordingFrame,
 } from "../lib/recordingTimeline";
 import type { PacingMode } from "../lib/recordingOptions";
@@ -17,6 +16,9 @@ type Options = {
 
 export function useRecordingPlayback(options: Options): RecordingFrame & {
   isPlaying: boolean;
+  play(): void;
+  pause(): void;
+  reset(): void;
 } {
   const { ready, autoplay, loop, showHook, pacing, speed } = options;
   const [frame, setFrame] = useState(() =>
@@ -49,17 +51,9 @@ export function useRecordingPlayback(options: Options): RecordingFrame & {
         speed,
       });
       setFrame(next);
-      if (!loop && next.phase === "ending") {
-        const finishedAt =
-          next.expectedPlaybackSeconds +
-          (showHook
-            ? RECORDING_TIMING.hookSeconds + RECORDING_TIMING.transitionSeconds
-            : 0) +
-          RECORDING_TIMING.endingSeconds;
-        if (next.cycleElapsedSeconds >= finishedAt) {
-          setIsPlaying(false);
-          return;
-        }
+      if (!loop && next.phase === "complete") {
+        setIsPlaying(false);
+        return;
       }
       frameId = requestAnimationFrame(tick);
     };
@@ -67,5 +61,22 @@ export function useRecordingPlayback(options: Options): RecordingFrame & {
     return () => cancelAnimationFrame(frameId);
   }, [isPlaying, loop, pacing, showHook, speed]);
 
-  return { ...frame, isPlaying };
+  const play = useCallback(() => {
+    if (!ready) return;
+    if (frame.phase === "complete") {
+      elapsedRef.current = 0;
+      previousRef.current = null;
+      setFrame(getRecordingFrame(0, { loop, showHook, pacing, speed }));
+    }
+    setIsPlaying(true);
+  }, [frame.phase, loop, pacing, ready, showHook, speed]);
+  const pause = useCallback(() => setIsPlaying(false), []);
+  const reset = useCallback(() => {
+    elapsedRef.current = 0;
+    previousRef.current = null;
+    setIsPlaying(false);
+    setFrame(getRecordingFrame(0, { loop, showHook, pacing, speed }));
+  }, [loop, pacing, showHook, speed]);
+
+  return { ...frame, isPlaying, play, pause, reset };
 }

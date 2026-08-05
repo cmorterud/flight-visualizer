@@ -5,7 +5,6 @@ import {
   getDatasetDisclosure,
   getHookCopy,
   getRecordingCopy,
-  getRecordingFinalSummary,
 } from "./copy";
 import type { DatasetMetadata } from "../types/flights";
 
@@ -53,24 +52,6 @@ describe("truthful dataset copy", () => {
     expect(
       getRecordingCopy({ ...historical, isCompleteDataset: true }).eyebrow,
     ).toBe("EVERY DOMESTIC FLIGHT AT DTW");
-  });
-
-  it("generates representative and historical final summaries", () => {
-    expect(getRecordingFinalSummary(representative, 240)).toEqual({
-      totalLine: "240 FLIGHTS",
-      periodLine: "OVER 24 HOURS",
-      cta: "WHICH AIRPORT NEXT?",
-    });
-    expect(
-      getRecordingFinalSummary(
-        { ...representative, kind: "historical", date: "2026-07-15" },
-        1042,
-      ),
-    ).toEqual({
-      totalLine: "1,042 DOMESTIC FLIGHTS",
-      periodLine: "ON JULY 15",
-      cta: "WHICH AIRPORT NEXT?",
-    });
   });
 
   it("uses singular and plural airborne grammar", () => {

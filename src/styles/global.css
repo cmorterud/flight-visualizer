@@ -817,8 +817,7 @@ input[type="range"] {
   font-size: 1.4cqw;
   width: 34cqw;
 }
-.recording-hook,
-.recording-ending {
+.recording-hook {
   position: absolute;
   z-index: 6;
   left: var(--recording-safe-left);
@@ -842,50 +841,49 @@ input[type="range"] {
   font-style: italic;
   font-weight: 400;
 }
-.recording-ending {
-  top: 72.5%;
-  align-items: flex-start;
-  animation: recording-copy-in 0.18s ease-out both;
-}
-.recording-ending strong {
-  color: var(--ink);
-  font:
-    600 5.6cqw/1 Inter,
-    sans-serif;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.045em;
-}
-.recording-ending span {
-  margin-top: 1.1cqw;
-  color: var(--cream);
-  font:
-    400 italic 3.3cqw/1 Georgia,
-    serif;
-}
-.recording-ending em {
-  margin-top: 3cqw;
-  color: var(--departure);
-  font:
-    500 2.15cqw/1 "DM Mono",
-    monospace;
-  font-style: normal;
-  letter-spacing: 0.12em;
-}
 .phase-hook .recording-header,
 .phase-hook .recording-time,
-.phase-hook .recording-footer,
-.phase-ending .recording-header,
-.phase-ending .recording-time,
-.phase-ending .recording-footer,
-.phase-loop-reset .recording-header,
-.phase-loop-reset .recording-time,
-.phase-loop-reset .recording-footer {
+.phase-hook .recording-footer {
   opacity: 0;
 }
 .phase-transition-to-playback .recording-header,
 .phase-transition-to-playback .recording-time,
 .phase-transition-to-playback .recording-footer {
   opacity: 0;
+}
+.recording-controls {
+  position: absolute;
+  z-index: 12;
+  top: 91%;
+  left: var(--recording-safe-left);
+  right: var(--recording-safe-right);
+  display: flex;
+  gap: 1.4cqw;
+}
+.recording-controls button {
+  min-width: 15cqw;
+  height: 5cqw;
+  min-height: 32px;
+  padding: 0 2cqw;
+  border: 1px solid #354257;
+  border-radius: 0;
+  color: #c4ccd6;
+  background: rgba(9, 14, 23, 0.92);
+  cursor: pointer;
+  font:
+    500 max(1.55cqw, 10px) / 1 "DM Mono",
+    monospace;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.recording-controls .recording-control-primary {
+  border-color: var(--cream);
+  color: #11151c;
+  background: var(--cream);
+}
+.recording-controls button:disabled {
+  cursor: default;
+  opacity: 0.38;
 }
 @keyframes recording-copy-in {
   from {

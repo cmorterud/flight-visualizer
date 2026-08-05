@@ -5,12 +5,7 @@ import { StatusView } from "../components/StatusView";
 import { useFlightData } from "../hooks/useFlightData";
 import { useFps } from "../hooks/useFps";
 import { useRecordingPlayback } from "../hooks/useRecordingPlayback";
-import {
-  getAirborneCopy,
-  getHookCopy,
-  getRecordingCopy,
-  getRecordingFinalSummary,
-} from "../lib/copy";
+import { getAirborneCopy, getHookCopy, getRecordingCopy } from "../lib/copy";
 import { parseRecordingOptions } from "../lib/recordingOptions";
 import {
   createFlightCountIndex,
@@ -87,15 +82,11 @@ export function RecordingPage() {
 
   const copy = getRecordingCopy(dataset.metadata);
   const hookCopy = getHookCopy(dataset.metadata);
-  const finalSummary = getRecordingFinalSummary(
-    dataset.metadata,
-    dataset.totalFlights,
-  );
   const isHook = playback.phase === "hook";
-  const isEnding =
-    playback.phase === "ending" || playback.phase === "loop-reset";
-  const showFullNetwork = isHook || isEnding;
-  const showLiveActivity = playback.phase === "playing";
+  const isComplete = playback.phase === "complete";
+  const showFullNetwork = isHook || isComplete;
+  const showTelemetry = playback.phase === "playing" || isComplete;
+  const displayedClockMinute = isComplete ? 1439 : playback.currentMinute;
 
   return (
     <main className="recording-stage">
@@ -104,7 +95,7 @@ export function RecordingPage() {
         aria-label={`Vertical ${airportCode} flight activity recording composition`}
         aria-busy={!ready}
       >
-        <header className="recording-header" aria-hidden={isHook || isEnding}>
+        <header className="recording-header" aria-hidden={isHook}>
           <div className="recording-index">
             <span>{airportCode}</span>
           </div>
@@ -119,8 +110,8 @@ export function RecordingPage() {
           </h1>
         </header>
 
-        <div className="recording-time" aria-hidden={!showLiveActivity}>
-          <strong>{formatClock(playback.currentMinute)}</strong>
+        <div className="recording-time" aria-hidden={!showTelemetry}>
+          <strong>{formatClock(displayedClockMinute)}</strong>
           <span>
             <i /> <b>{getAirborneCopy(counts.active)}</b>
           </span>
@@ -134,7 +125,7 @@ export function RecordingPage() {
             showCompletedRoutes
             showAirportMarkers={false}
             showFullNetwork={showFullNetwork}
-            showActiveFlights={showLiveActivity}
+            showActiveFlights={playback.phase === "playing"}
             onZoomChange={setZoom}
             onMapError={setMapError}
             onReady={handleMapReady}
@@ -149,7 +140,7 @@ export function RecordingPage() {
           {mapError && <div className="map-error">Basemap unavailable</div>}
         </div>
 
-        <footer className="recording-footer" aria-hidden={isHook || isEnding}>
+        <footer className="recording-footer" aria-hidden={isHook}>
           <div>
             <strong>{counts.arrived}</strong>
             <span>Arrived</span>
@@ -169,19 +160,35 @@ export function RecordingPage() {
           </div>
         )}
 
-        {isEnding && (
-          <div className="recording-ending">
-            <strong>{finalSummary.totalLine}</strong>
-            <span>{finalSummary.periodLine}</span>
-            <em>{finalSummary.cta}</em>
-          </div>
-        )}
-
         <div className="recording-progress" aria-hidden="true">
           <span
             style={{ width: `${(playback.currentMinute / 1440) * 100}%` }}
           />
         </div>
+
+        <nav
+          className="recording-controls"
+          aria-label="Recording playback controls"
+        >
+          <button
+            type="button"
+            className="recording-control-primary"
+            onClick={playback.play}
+            disabled={!ready || playback.isPlaying}
+          >
+            Start
+          </button>
+          <button
+            type="button"
+            onClick={playback.pause}
+            disabled={!playback.isPlaying}
+          >
+            Pause
+          </button>
+          <button type="button" onClick={playback.reset} disabled={!ready}>
+            Reset
+          </button>
+        </nav>
 
         {!ready && (
           <div className="recording-ready-cover" role="status">

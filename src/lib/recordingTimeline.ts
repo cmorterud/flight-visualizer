@@ -5,13 +5,11 @@ import {
 import type { PacingMode } from "./recordingOptions";
 
 export type RecordingPhase =
-  "hook" | "transition-to-playback" | "playing" | "ending" | "loop-reset";
+  "hook" | "transition-to-playback" | "playing" | "complete";
 
 export const RECORDING_TIMING = {
   hookSeconds: 0.75,
   transitionSeconds: 0.12,
-  endingSeconds: 1.75,
-  loopResetSeconds: 0.05,
 } as const;
 
 export interface RecordingFrame {
@@ -38,18 +36,11 @@ export function getRecordingFrame(
   const openingDuration = options.showHook
     ? RECORDING_TIMING.hookSeconds + RECORDING_TIMING.transitionSeconds
     : 0;
-  const cycleDuration =
-    openingDuration +
-    playbackDuration +
-    RECORDING_TIMING.endingSeconds +
-    (options.loop ? RECORDING_TIMING.loopResetSeconds : 0);
+  const cycleDuration = openingDuration + playbackDuration;
   const elapsed = Math.max(0, elapsedSeconds);
   const cycleElapsed = options.loop
     ? elapsed % cycleDuration
-    : Math.min(
-        elapsed,
-        openingDuration + playbackDuration + RECORDING_TIMING.endingSeconds,
-      );
+    : Math.min(elapsed, cycleDuration);
 
   if (options.showHook && cycleElapsed < RECORDING_TIMING.hookSeconds) {
     return {
@@ -84,20 +75,8 @@ export function getRecordingFrame(
       expectedPlaybackSeconds: playbackDuration,
     };
   }
-  if (
-    playbackElapsed < playbackDuration + RECORDING_TIMING.endingSeconds ||
-    !options.loop
-  ) {
-    return {
-      phase: "ending",
-      currentMinute: 1440,
-      elapsedPlaybackSeconds: playbackDuration,
-      cycleElapsedSeconds: cycleElapsed,
-      expectedPlaybackSeconds: playbackDuration,
-    };
-  }
   return {
-    phase: "loop-reset",
+    phase: "complete",
     currentMinute: 1440,
     elapsedPlaybackSeconds: playbackDuration,
     cycleElapsedSeconds: cycleElapsed,
