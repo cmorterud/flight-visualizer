@@ -16,7 +16,7 @@ export const RECORDING_DEFAULTS: RecordingOptions = {
   airport: "DTW",
   date: "mock",
   speed: 60,
-  autoplay: true,
+  autoplay: false,
   loop: true,
   showHook: false,
   pacing: "linear",

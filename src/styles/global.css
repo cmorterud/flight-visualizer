@@ -851,39 +851,88 @@ input[type="range"] {
 .phase-transition-to-playback .recording-footer {
   opacity: 0;
 }
-.recording-controls {
-  position: absolute;
-  z-index: 12;
-  top: 91%;
-  left: var(--recording-safe-left);
-  right: var(--recording-safe-right);
-  display: flex;
-  gap: 1.4cqw;
+.recording-side-panel {
+  position: fixed;
+  z-index: 40;
+  top: 50%;
+  left: calc(50% + min(50vw, 28.125vh) + 24px);
+  width: 210px;
+  padding: 18px;
+  transform: translateY(-50%);
+  border: 1px solid #263247;
+  color: #c4ccd6;
+  background: #090e17;
 }
-.recording-controls button {
-  min-width: 15cqw;
-  height: 5cqw;
-  min-height: 32px;
-  padding: 0 2cqw;
+.recording-side-panel > p {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font:
+    500 10px/1 "DM Mono",
+    monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.recording-side-panel nav {
+  display: grid;
+  gap: 8px;
+}
+.recording-side-panel button {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
   border: 1px solid #354257;
   border-radius: 0;
   color: #c4ccd6;
   background: rgba(9, 14, 23, 0.92);
   cursor: pointer;
   font:
-    500 max(1.55cqw, 10px) / 1 "DM Mono",
+    500 10px/1 "DM Mono",
     monospace;
   letter-spacing: 0.09em;
   text-transform: uppercase;
 }
-.recording-controls .recording-control-primary {
+.recording-side-panel .recording-control-primary {
   border-color: var(--cream);
   color: #11151c;
   background: var(--cream);
 }
-.recording-controls button:disabled {
+.recording-side-panel button:disabled {
   cursor: default;
   opacity: 0.38;
+}
+.recording-countdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 16px;
+  color: #9da7b5;
+  cursor: pointer;
+  font:
+    500 9px/1.3 "DM Mono",
+    monospace;
+  text-transform: uppercase;
+}
+.recording-countdown-toggle input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--arrival);
+}
+.recording-countdown-toggle:has(input:disabled) {
+  cursor: default;
+  opacity: 0.55;
+}
+.recording-countdown {
+  display: block;
+  min-height: 13px;
+  margin-top: 12px;
+  color: var(--arrival);
+  font:
+    500 10px/1.3 "DM Mono",
+    monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 @keyframes recording-copy-in {
   from {

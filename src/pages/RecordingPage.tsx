@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DebugOverlay } from "../components/DebugOverlay";
 import { FlightMap } from "../components/FlightMap";
 import { StatusView } from "../components/StatusView";
@@ -24,6 +24,9 @@ export function RecordingPage() {
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapReady, setMapReady] = useState(false);
   const [fontsReady, setFontsReady] = useState(!document.fonts);
+  const [countdownEnabled, setCountdownEnabled] = useState(true);
+  const [countdownSeconds, setCountdownSeconds] = useState<number | null>(null);
+  const countdownTimerRef = useRef<number | null>(null);
   const handleMapReady = useCallback(() => setMapReady(true), []);
   const { dataset, airportCode, file, loading, error } = useFlightData(
     options.airport,
@@ -51,6 +54,52 @@ export function RecordingPage() {
     pacing: options.pacing,
     speed: options.speed,
   });
+  const cancelCountdown = useCallback(() => {
+    if (countdownTimerRef.current !== null) {
+      window.clearTimeout(countdownTimerRef.current);
+      countdownTimerRef.current = null;
+    }
+    setCountdownSeconds(null);
+  }, []);
+  const handleStart = useCallback(() => {
+    if (!ready || playback.isPlaying || countdownSeconds !== null) return;
+    const isFreshStart =
+      playback.elapsedPlaybackSeconds === 0 || playback.phase === "complete";
+    if (!countdownEnabled || !isFreshStart) {
+      playback.play();
+      return;
+    }
+
+    const tick = (remaining: number) => {
+      setCountdownSeconds(remaining);
+      countdownTimerRef.current = window.setTimeout(() => {
+        if (remaining === 1) {
+          countdownTimerRef.current = null;
+          setCountdownSeconds(null);
+          playback.play();
+        } else {
+          tick(remaining - 1);
+        }
+      }, 1000);
+    };
+    tick(3);
+  }, [countdownEnabled, countdownSeconds, playback, ready]);
+  const handlePause = useCallback(() => {
+    cancelCountdown();
+    playback.pause();
+  }, [cancelCountdown, playback]);
+  const handleReset = useCallback(() => {
+    cancelCountdown();
+    playback.reset();
+  }, [cancelCountdown, playback]);
+
+  useEffect(
+    () => () => {
+      if (countdownTimerRef.current !== null)
+        window.clearTimeout(countdownTimerRef.current);
+    },
+    [],
+  );
   const countIndex = useMemo(
     () => createFlightCountIndex(dataset?.flights ?? []),
     [dataset],
@@ -166,30 +215,6 @@ export function RecordingPage() {
           />
         </div>
 
-        <nav
-          className="recording-controls"
-          aria-label="Recording playback controls"
-        >
-          <button
-            type="button"
-            className="recording-control-primary"
-            onClick={playback.play}
-            disabled={!ready || playback.isPlaying}
-          >
-            Start
-          </button>
-          <button
-            type="button"
-            onClick={playback.pause}
-            disabled={!playback.isPlaying}
-          >
-            Pause
-          </button>
-          <button type="button" onClick={playback.reset} disabled={!ready}>
-            Reset
-          </button>
-        </nav>
-
         {!ready && (
           <div className="recording-ready-cover" role="status">
             Preparing map and typography…
@@ -229,6 +254,43 @@ export function RecordingPage() {
           outbound.
         </p>
       </section>
+      <aside className="recording-side-panel" aria-label="Recording controls">
+        <p>Playback</p>
+        <nav aria-label="Recording playback controls">
+          <button
+            type="button"
+            className="recording-control-primary"
+            onClick={handleStart}
+            disabled={!ready || playback.isPlaying || countdownSeconds !== null}
+          >
+            Start
+          </button>
+          <button
+            type="button"
+            onClick={handlePause}
+            disabled={!playback.isPlaying && countdownSeconds === null}
+          >
+            Pause
+          </button>
+          <button type="button" onClick={handleReset} disabled={!ready}>
+            Reset
+          </button>
+        </nav>
+        <label className="recording-countdown-toggle">
+          <input
+            type="checkbox"
+            checked={countdownEnabled}
+            onChange={(event) => setCountdownEnabled(event.target.checked)}
+            disabled={countdownSeconds !== null}
+          />
+          <span>3-second countdown</span>
+        </label>
+        <output className="recording-countdown" aria-live="polite">
+          {countdownSeconds !== null
+            ? `Starting in ${countdownSeconds}`
+            : "Ready"}
+        </output>
+      </aside>
     </main>
   );
 }

@@ -48,19 +48,19 @@ The default 60-minute speed compresses the 24-hour day into about 24 seconds.
 
 Supported parameters:
 
-| Parameter       | Values                        | Default  | Purpose                                      |
-| --------------- | ----------------------------- | -------- | -------------------------------------------- |
-| `airport`       | Three-letter manifest code    | `DTW`    | Selects the airport dataset                  |
-| `date`          | Manifest date or `mock`       | `mock`   | Selects the day                              |
-| `speed`         | `15`, `30`, `60`, `90`, `120` | `60`     | Simulated minutes per real second            |
-| `autoplay`      | `true`, `false`, `1`, `0`     | `true`   | Starts once the map and fonts are ready      |
-| `loop`          | `true`, `false`, `1`, `0`     | `true`   | Restarts immediately after the 24-hour day   |
-| `showHook`      | `true`, `false`, `1`, `0`     | `false`  | Adds the 0.75-second completed-network hook  |
-| `pacing`        | `linear`, `activity`          | `linear` | Chooses constant or activity-weighted pacing |
-| `showSafeAreas` | `true`, `false`, `1`, `0`     | `false`  | Shows non-interactive Reel-safe guides       |
-| `showDebug`     | `true`, `false`, `1`, `0`     | `false`  | Shows render and recording diagnostics       |
+| Parameter       | Values                        | Default  | Purpose                                        |
+| --------------- | ----------------------------- | -------- | ---------------------------------------------- |
+| `airport`       | Three-letter manifest code    | `DTW`    | Selects the airport dataset                    |
+| `date`          | Manifest date or `mock`       | `mock`   | Selects the day                                |
+| `speed`         | `15`, `30`, `60`, `90`, `120` | `60`     | Simulated minutes per real second              |
+| `autoplay`      | `true`, `false`, `1`, `0`     | `false`  | Optionally starts once map and fonts are ready |
+| `loop`          | `true`, `false`, `1`, `0`     | `true`   | Restarts immediately after the 24-hour day     |
+| `showHook`      | `true`, `false`, `1`, `0`     | `false`  | Adds the 0.75-second completed-network hook    |
+| `pacing`        | `linear`, `activity`          | `linear` | Chooses constant or activity-weighted pacing   |
+| `showSafeAreas` | `true`, `false`, `1`, `0`     | `false`  | Shows non-interactive Reel-safe guides         |
+| `showDebug`     | `true`, `false`, `1`, `0`     | `false`  | Shows render and recording diagnostics         |
 
-The recording route has explicit Start, Pause, and Reset controls but no hover-dependent UI or scrollbars. Completed routes remain at low opacity so the full daily network accumulates over time. Its fixed design canvas scales uniformly for previews and reserves Reel-safe equivalents of 90 px left, 150 px right, 120 px top, and 280 px bottom at 1080 × 1920.
+The recording route places Start, Pause, Reset, and an optional three-second countdown in a side panel outside the recording canvas, so the controls are not captured with the Reel. Completed routes remain at low opacity so the full daily network accumulates over time. Its fixed design canvas scales uniformly for previews and reserves Reel-safe equivalents of 90 px left, 150 px right, 120 px top, and 280 px bottom at 1080 × 1920.
 
 ## Data architecture
 
