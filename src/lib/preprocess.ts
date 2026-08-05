@@ -43,11 +43,10 @@ function get(row: Row, candidates: readonly string[]): string {
   return "";
 }
 
-function isTruthyFlag(value: string): boolean {
+export function isTruthyFlag(value: string): boolean {
+  const normalized = value.trim().toLowerCase();
   return (
-    value === "1" ||
-    value.toLowerCase() === "true" ||
-    value.toLowerCase() === "yes"
+    Number(normalized) === 1 || normalized === "true" || normalized === "yes"
   );
 }
 
